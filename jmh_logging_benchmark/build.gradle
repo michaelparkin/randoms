@@ -1,0 +1,19 @@
+plugins {
+    id "me.champeau.gradle.jmh" version "0.5.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext.slf4jVersion = '1.7.30'
+ext.log4jVersion = '2.13.3'
+
+dependencies {
+    jmh group: 'org.slf4j', name: 'slf4j-log4j12', version: "$slf4jVersion"
+    jmh group: 'org.apache.logging.log4j', name: 'log4j-api', version: "$log4jVersion"
+}
+
+jmh {
+    resultsFile = project.file("${project.buildDir}/results.txt")
+}
