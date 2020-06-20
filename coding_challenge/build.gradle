@@ -1,0 +1,26 @@
+plugins {
+    id 'application'
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.guava:guava:29.0-jre'
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.3'
+}
+
+task runGsonFileParser(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'lightstep.gson.GsonFileParser'
+    args "$projectDir/src/main/resources/input.json"
+}
