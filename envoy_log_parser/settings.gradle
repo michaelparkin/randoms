@@ -1,0 +1,9 @@
+pluginManagement {
+    plugins {
+        id 'com.github.johnrengelman.shadow' version '5.2.0'
+        id 'com.google.protobuf' version '0.8.12'
+        id 'me.champeau.gradle.jmh' version '0.5.0'
+    }
+}
+
+rootProject.name = 'envoy_log_parser'

@@ -1,0 +1,150 @@
+plugins {
+    id 'me.champeau.gradle.jmh'
+    id 'com.google.protobuf'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext.beamVersion = '2.22.0'
+ext.equalsVerifierVersion = '3.3'
+ext.grpcVersion = '1.30.1'
+ext.guavaVersion = '29.0-jre'
+ext.hamcrestVersion = '2.2'
+ext.protocVersion = '3.5.1'
+ext.protobufJavaVersion = '3.12.2'
+ext.slf4jVersion = '1.7.30'
+ext.log4jVersion = '2.13.3'
+ext.junitVersion = '4.13'
+
+dependencies {
+    implementation "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+    implementation "com.google.guava:guava:$guavaVersion"
+    implementation "org.apache.beam:beam-sdks-java-core:$beamVersion"
+
+    jmh "org.apache.logging.log4j:log4j-api:$log4jVersion"
+    jmh "org.slf4j:slf4j-log4j12:$slf4jVersion"
+
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "nl.jqno.equalsverifier:equalsverifier:$equalsVerifierVersion"
+    testImplementation "org.hamcrest:hamcrest-core:$hamcrestVersion"
+    testImplementation "org.hamcrest:hamcrest-library:$hamcrestVersion"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protocVersion"
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
+jmh {
+    duplicateClassesStrategy = 'WARN'
+    resultsFile = project.file("${project.buildDir}/results.txt")
+}
+
+def downloadFiles(def url, def sha) {
+    logger.lifecycle("Downloading protos from {}", url)
+    def fileName = "${sha}.zip"
+    def file = new File("${fileName}").newOutputStream()
+    file << new URL("$url/archive/${fileName}").openStream()
+    file.close()
+    copy {
+        from zipTree("${rootDir}/${fileName}")
+        into 'src/main/proto'
+        include '**/*.proto'
+        includeEmptyDirs = false
+    }
+    delete "${rootDir}/${fileName}"
+}
+
+// Dependencies from https://github.com/envoyproxy/data-plane-api/blob/master/bazel/repository_locations.bzl
+task downloadApis {
+    doLast {
+        def DATA_PLANE_URL = "https://github.com/envoyproxy/data-plane-api"
+        def DATA_PLANE_API_GIT_SHA = "743bde0846aad1d398b0019f1aff409a44c92924" // Jun 20, 2020
+
+        def PROTOBUFS_URL = "https://github.com/protocolbuffers/protobuf/"
+        def PROTOBUFS_GIT_SHA = "d09d649aea36f02c03f8396ba39a8d4db8a607e4" // v3.10.1
+
+        def PGV_URL = "https://github.com/lyft/protoc-gen-validate"
+        def PGV_GIT_SHA = "278964a8052f96a2f514add0298098f63fb7f47f" // June 9, 2020
+
+        def UDPA_URL = "https://github.com/cncf/udpa/"
+        def UDPA_GIT_SHA = "9f54a527e3bf4d1f4a6527f93d329fb1cc4516ac" // May 8, 2020
+
+        def protoDir = "src/main/proto"
+        delete fileTree(dir: "{$protoDir}", include: '**/*')
+
+        downloadFiles(DATA_PLANE_URL, DATA_PLANE_API_GIT_SHA)
+        copy {
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/annotations/deprecation.proto"
+            into "${protoDir}/envoy/annotations"
+        }
+        copy {
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/api/v2/core/"
+            into "${protoDir}/envoy/api/v2/core"
+        }
+        copy {
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/api/v3/core/"
+            into "${protoDir}/envoy/api/v3/core"
+        }
+        copy {
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/data/accesslog/v2/"
+            into "${protoDir}/envoy/data/accesslog/v2"
+        }
+        copy {
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/type/http.proto"
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/type/percent.proto"
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/type/range.proto"
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/type/semantic_version.proto"
+            into "${protoDir}/envoy/type"
+        }
+        copy {
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/type/matcher/regex.proto"
+            from "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}/envoy/type/matcher/string.proto"
+            into "${protoDir}/envoy/type/matcher"
+        }
+        delete "${protoDir}/data-plane-api-${DATA_PLANE_API_GIT_SHA}"
+
+        downloadFiles(PROTOBUFS_URL, PROTOBUFS_GIT_SHA)
+        copy {
+            from "${protoDir}/protobuf-${PROTOBUFS_GIT_SHA}/src/google/protobuf/duration.proto"
+            into "${protoDir}/google/protobuf"
+        }
+        delete "${protoDir}/protobuf-${PROTOBUFS_GIT_SHA}"
+
+        downloadFiles(PGV_URL, PGV_GIT_SHA)
+        copy {
+            from "${protoDir}/protoc-gen-validate-${PGV_GIT_SHA}/validate/validate.proto"
+            into "${protoDir}/validate"
+        }
+        delete "${protoDir}/protoc-gen-validate-${PGV_GIT_SHA}"
+
+        downloadFiles(UDPA_URL, UDPA_GIT_SHA)
+        copy {
+            from "${protoDir}/udpa-${UDPA_GIT_SHA}/udpa/annotations/"
+            into "${protoDir}/udpa/annotations"
+        }
+        delete "${protoDir}/udpa-${UDPA_GIT_SHA}"
+    }
+}
+
+task runBatchEnvoyLogParser(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'envoy.BatchEnvoyLogParser'
+    args "$projectDir/src/main/resources/input.log"
+}
