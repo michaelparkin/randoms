@@ -13,6 +13,7 @@ repositories {
 }
 
 ext.beamVersion = '2.22.0'
+ext.easymockVersion = '4.2'
 ext.equalsVerifierVersion = '3.3'
 ext.grpcVersion = '1.30.1'
 ext.guavaVersion = '29.0-jre'
@@ -27,12 +28,12 @@ dependencies {
     implementation "com.google.protobuf:protobuf-java:$protobufJavaVersion"
     implementation "com.google.guava:guava:$guavaVersion"
     implementation "org.apache.beam:beam-sdks-java-core:$beamVersion"
-
-    jmh "org.apache.logging.log4j:log4j-api:$log4jVersion"
-    jmh "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
+    implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "nl.jqno.equalsverifier:equalsverifier:$equalsVerifierVersion"
+    testImplementation "org.easymock:easymock:$easymockVersion"
     testImplementation "org.hamcrest:hamcrest-core:$hamcrestVersion"
     testImplementation "org.hamcrest:hamcrest-library:$hamcrestVersion"
 }

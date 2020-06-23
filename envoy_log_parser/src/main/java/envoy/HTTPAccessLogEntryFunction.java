@@ -16,31 +16,34 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
+import static io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry.HTTPVersion;
+import static io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry.newBuilder;
+
 @ThreadSafe
 public class HTTPAccessLogEntryFunction
         implements Function<HTTPAccessLogParams, HTTPAccessLogEntry> {
 
     @Override
-    public HTTPAccessLogEntry apply(HTTPAccessLogParams httpAccessLogParams) {
-        Instant startInstant = httpAccessLogParams.getStartInstant();
-        String requestMethod = httpAccessLogParams.getRequestMethod();
-        String path = httpAccessLogParams.getPath();
-        String protocol = httpAccessLogParams.getProtocol();
-        int responseCode = httpAccessLogParams.getResponseCode();
-        String responseFlags = httpAccessLogParams.getResponseFlags(); // TODO
-        int requestBodyBytes = httpAccessLogParams.getRequestBodyBytes();
-        int responseBodyBytes = httpAccessLogParams.getResponseBodyBytes();
-        Duration downstreamDuration = httpAccessLogParams.getDownstreamDuration();
-        Duration upstreamDuration = httpAccessLogParams.getUpstreamDuration();
-        String xForwardedFor = httpAccessLogParams.getXForwardedFor(); // TODO
-        String userAgent = httpAccessLogParams.getUserAgent();
-        String requestId = httpAccessLogParams.getRequestId();
-        String authority = httpAccessLogParams.getAuthority();
-        String upstreamHost = httpAccessLogParams.getUpstreamHost();
-        int upstreamPort = httpAccessLogParams.getUpstreamPort();
-        String customerId = httpAccessLogParams.getCustomerId(); // TODO
+    public HTTPAccessLogEntry apply(HTTPAccessLogParams accessLogParams) {
+        Instant startInstant = accessLogParams.getStartInstant();
+        String requestMethod = accessLogParams.getRequestMethod();
+        String path = accessLogParams.getPath();
+        String protocol = accessLogParams.getProtocol();
+        int responseCode = accessLogParams.getResponseCode();
+        String responseFlags = accessLogParams.getResponseFlags(); // TODO
+        int requestBodyBytes = accessLogParams.getRequestBodyBytes();
+        int responseBodyBytes = accessLogParams.getResponseBodyBytes();
+        Duration downstreamDuration = accessLogParams.getDownstreamDuration();
+        Duration upstreamDuration = accessLogParams.getUpstreamDuration();
+        String xForwardedFor = accessLogParams.getXForwardedFor(); // TODO
+        String userAgent = accessLogParams.getUserAgent();
+        String requestId = accessLogParams.getRequestId();
+        String authority = accessLogParams.getAuthority();
+        String upstreamHost = accessLogParams.getUpstreamHost();
+        int upstreamPort = accessLogParams.getUpstreamPort();
+        String customerId = accessLogParams.getCustomerId(); // TODO
 
-        return HTTPAccessLogEntry.newBuilder()
+        return newBuilder()
                 .setCommonProperties(AccessLogCommon.newBuilder()
                         .setResponseFlags(ResponseFlags.newBuilder()
                                 .build())
@@ -63,7 +66,7 @@ public class HTTPAccessLogEntryFunction
                                         .build())
                                 .build())
                         .build())
-                .setProtocolVersion(HTTPAccessLogEntry.HTTPVersion.valueOf(protocol))
+                .setProtocolVersion(HTTPVersion.valueOf(protocol))
                 .setRequest(HTTPRequestProperties.newBuilder()
                         .setAuthority(authority)
                         .setPath(path)

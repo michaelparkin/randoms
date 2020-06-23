@@ -9,7 +9,7 @@ import java.util.Locale;
 
 /**
  * The entries in each log message are (in order):
- *
+ * <p>
  * [%START_TIME%]
  * "%REQ(:METHOD)%
  * %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%
@@ -28,7 +28,7 @@ import java.util.Locale;
  * "%REQ(CUSTOMER_ID)%
  */
 @NotThreadSafe
-public final class HTTPAccessLogParams {
+public class HTTPAccessLogParams {
 
     public static final DateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);

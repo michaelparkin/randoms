@@ -1,7 +1,9 @@
 package envoy;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
@@ -10,14 +12,18 @@ import java.util.function.Function;
 
 import static envoy.HTTPAccessLogParams.DATE_FORMAT;
 
+@ThreadSafe
 public class HTTPAccessLogTokenizer implements Function<String, HTTPAccessLogParams> {
 
     @Override
     public HTTPAccessLogParams apply(String logEntry) {
+        return apply(new HTTPAccessLogParams(), logEntry);
+    }
+
+    @VisibleForTesting
+    HTTPAccessLogParams apply(HTTPAccessLogParams accessLogParams, String logEntry) {
 
         final StringTokenizer st = new StringTokenizer(logEntry);
-
-        final HTTPAccessLogParams accessLogParams = new HTTPAccessLogParams();
 
         Instant startInstant;
         try {
@@ -73,7 +79,7 @@ public class HTTPAccessLogTokenizer implements Function<String, HTTPAccessLogPar
 
         if (st.hasMoreTokens()) {
             accessLogParams.setCustomerId(st.nextToken()
-                .replace("\"", ""));
+                    .replace("\"", ""));
         }
 
         return accessLogParams;

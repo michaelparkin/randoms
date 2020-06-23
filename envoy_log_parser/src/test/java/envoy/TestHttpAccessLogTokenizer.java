@@ -3,68 +3,96 @@ package envoy;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.Duration;
-import java.time.Instant;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static envoy.TestConstants.AUTHORITY;
+import static envoy.TestConstants.CUTOMER_ID;
+import static envoy.TestConstants.DOWNSTREAM_DURATION;
+import static envoy.TestConstants.PATH;
+import static envoy.TestConstants.PROTOCOL;
+import static envoy.TestConstants.REQUEST_BODY_BYTES;
+import static envoy.TestConstants.REQUEST_ID;
+import static envoy.TestConstants.REQUEST_METHOD;
+import static envoy.TestConstants.RESPONSE_BODY_BYTES;
+import static envoy.TestConstants.RESPONSE_CODE;
+import static envoy.TestConstants.RESPONSE_FLAGS;
+import static envoy.TestConstants.START_INSTANT;
+import static envoy.TestConstants.UPSTREAM_DURATION;
+import static envoy.TestConstants.UPSTREAM_HOST;
+import static envoy.TestConstants.UPSTREAM_PORT;
+import static envoy.TestConstants.USER_AGENT;
+import static envoy.TestConstants.X_FORWARDED_FOR;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.mock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class TestHttpAccessLogTokenizer {
 
-    private final static String LOG_ENTRY = "[2020-06-18T06:25:25.123Z]" +
-            " \"POST /grpc/method HTTP/2\" 200 - 110 74053 103 101 \"-\"" +
-            " \"grpc-java-netty/1.25.0\" \"67432a84-621b-4d54-ba6d-9e0313a96304\"" +
-            " \"127.0.0.1\" \"10.0.0.1:80\" \"customerId\"";
-
+    private HTTPAccessLogParams accessLogParams;
     private HTTPAccessLogTokenizer accessLogTokenizer;
 
     @Before
     public void setUp() {
+        accessLogParams = mock(HTTPAccessLogParams.class);
         accessLogTokenizer = new HTTPAccessLogTokenizer();
     }
 
     @Test
     public void testTokenizeLogEntry() {
+        accessLogParams.setStartInstant(START_INSTANT);
+        expectLastCall().once();
 
-        HTTPAccessLogParams accessLogParams = accessLogTokenizer.apply(LOG_ENTRY);
+        accessLogParams.setRequestMethod(REQUEST_METHOD);
+        expectLastCall().once();
 
-        Instant startInstant = accessLogParams.getStartInstant();
-        assertThat(startInstant.getEpochSecond(),
-                is(equalTo(1592486725L)));
-        assertThat(startInstant.getNano(),
-                is(equalTo(123000000)));
-        assertThat(accessLogParams.getRequestMethod(),
-                is(equalTo("POST")));
-        assertThat(accessLogParams.getPath(),
-                is(equalTo("/grpc/method")));
-        assertThat(accessLogParams.getProtocol(),
-                is(equalTo("HTTP2")));
-        assertThat(accessLogParams.getResponseCode(),
-                is(equalTo(200)));
-        assertThat(accessLogParams.getResponseFlags(),
-                is(equalTo("-")));
-        assertThat(accessLogParams.getResponseBodyBytes(),
-                is(equalTo(110)));
-        assertThat(accessLogParams.getRequestBodyBytes(),
-                is(equalTo(74053)));
-        assertThat(accessLogParams.getDownstreamDuration(),
-                is(equalTo(Duration.ofMillis(103))));
-        assertThat(accessLogParams.getUpstreamDuration(),
-                is(equalTo(Duration.ofMillis(101))));
-        assertThat((accessLogParams.getXForwardedFor()),
-                is(equalTo("-")));
-        assertThat(accessLogParams.getUserAgent(),
-                is(equalTo("grpc-java-netty/1.25.0")));
-        assertThat(accessLogParams.getRequestId(),
-                is(equalTo("67432a84-621b-4d54-ba6d-9e0313a96304")));
-        assertThat(accessLogParams.getAuthority(),
-                is(equalTo("127.0.0.1")));
-        assertThat(accessLogParams.getUpstreamHost(),
-                is(equalTo("10.0.0.1")));
-        assertThat(accessLogParams.getUpstreamPort(),
-                is(equalTo(80)));
-        assertThat(accessLogParams.getCustomerId(),
-                is(equalTo("customerId")));
+        accessLogParams.setPath(PATH);
+        expectLastCall().once();
+
+        accessLogParams.setProtocol(PROTOCOL);
+        expectLastCall().once();
+
+        accessLogParams.setResponseCode(RESPONSE_CODE);
+        expectLastCall().once();
+
+        accessLogParams.setResponseFlags(RESPONSE_FLAGS);
+        expectLastCall().once();
+
+        accessLogParams.setResponseBodyBytes(RESPONSE_BODY_BYTES);
+        expectLastCall().once();
+
+        accessLogParams.setRequestBodyBytes(REQUEST_BODY_BYTES);
+        expectLastCall().once();
+
+        accessLogParams.setDownstreamDuration(DOWNSTREAM_DURATION);
+        expectLastCall().once();
+
+        accessLogParams.setUpstreamDuration(UPSTREAM_DURATION);
+        expectLastCall().once();
+
+        accessLogParams.setXForwardedFor(X_FORWARDED_FOR);
+        expectLastCall().once();
+
+        accessLogParams.setUserAgent(USER_AGENT);
+        expectLastCall().once();
+
+        accessLogParams.setRequestId(REQUEST_ID);
+        expectLastCall().once();
+
+        accessLogParams.setAuthority(AUTHORITY);
+        expectLastCall().once();
+
+        accessLogParams.setUpstreamHost(UPSTREAM_HOST);
+        expectLastCall().once();
+
+        accessLogParams.setUpstreamPort(UPSTREAM_PORT);
+        expectLastCall().once();
+
+        accessLogParams.setCustomerId(CUTOMER_ID);
+        expectLastCall().once();
+
+        replay(accessLogParams);
+
+        accessLogTokenizer.apply(accessLogParams, TestConstants.LOG_ENTRY);
+
+        verify(accessLogParams);
     }
 }
