@@ -1,11 +1,8 @@
 package envoy;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Locale;
 
 /**
  * The entries in each log message are (in order):
@@ -28,10 +25,9 @@ import java.util.Locale;
  * "%REQ(CUSTOMER_ID)%
  */
 @NotThreadSafe
-public class HTTPAccessLogParams {
+class HTTPAccessLogParams {
 
-    public static final DateFormat DATE_FORMAT =
-            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private Instant startInstant;
     private String requestMethod;

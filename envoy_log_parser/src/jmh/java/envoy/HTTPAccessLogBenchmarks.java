@@ -31,14 +31,12 @@ public class HTTPAccessLogBenchmarks {
     private final HTTPAccessLogEntryFunction accessLogEntryFunction =
             new HTTPAccessLogEntryFunction();
 
-    private final HTTPAccessLogParams accessLogParams =
-            new HTTPAccessLogParams();
-
     private final HTTPAccessLogTokenizer accessLogTokenizer =
             new HTTPAccessLogTokenizer();
 
     @Benchmark
     public HTTPAccessLogEntry testBaseline() {
+        HTTPAccessLogParams accessLogParams = new HTTPAccessLogParams();
         accessLogParams.setStartInstant(START_INSTANT);
         accessLogParams.setRequestMethod(REQUEST_METHOD);
         accessLogParams.setPath(PATH);

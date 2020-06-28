@@ -10,8 +10,11 @@ import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.ResponseFlags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
@@ -20,8 +23,9 @@ import static io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry.HTTPVersi
 import static io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry.newBuilder;
 
 @ThreadSafe
-public class HTTPAccessLogEntryFunction
-        implements Function<HTTPAccessLogParams, HTTPAccessLogEntry> {
+class HTTPAccessLogEntryFunction implements Function<HTTPAccessLogParams, HTTPAccessLogEntry>, Serializable {
+
+    private final static Logger LOG = LoggerFactory.getLogger(HTTPAccessLogEntryFunction.class);
 
     @Override
     public HTTPAccessLogEntry apply(HTTPAccessLogParams accessLogParams) {

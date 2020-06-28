@@ -2,18 +2,26 @@ package envoy;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.function.Function;
 
 import static envoy.HTTPAccessLogParams.DATE_FORMAT;
 
 @ThreadSafe
-public class HTTPAccessLogTokenizer implements Function<String, HTTPAccessLogParams> {
+class HTTPAccessLogTokenizer implements Function<String, HTTPAccessLogParams>, Serializable {
+
+    private final static Logger LOG = LoggerFactory.getLogger(HTTPAccessLogTokenizer.class);
 
     @Override
     public HTTPAccessLogParams apply(String logEntry) {
@@ -25,12 +33,15 @@ public class HTTPAccessLogTokenizer implements Function<String, HTTPAccessLogPar
 
         final StringTokenizer st = new StringTokenizer(logEntry);
 
+        final DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
         Instant startInstant;
+        String startTime = st.nextToken();
         try {
-            startInstant = DATE_FORMAT.parse(st.nextToken()
+            startInstant = dateFormat.parse(startTime
                     .replace("[", "")
                     .replace("]", "")).toInstant();
         } catch (ParseException e) {
+            LOG.error("Parse exception:", e);
             startInstant = Instant.now();
         }
         accessLogParams.setStartInstant(startInstant);
